@@ -127,6 +127,19 @@ public class SchematronGeneration {
         activePatternDemoErrors.setAttribute("pattern", "p-PATIENT-DEMOGRAPHICS-ERRORS");
         phaseErrors.appendChild(activePatternDemoErrors);
 
+        Element patternErrors = doc.createElementNS("http://www.ascc.net/xml/schematron", "pattern");
+        patternErrors.setAttribute("name","PATIENT-DEMOGRAPHICS");
+        patternErrors.setAttribute("id","p-PATIENT-DEMOGRAPHICS-ERRORS");
+        schema.appendChild(patternErrors);
+        
+        
+      //  <sch:pattern name="PATIENT-DEMOGRAPHICS" id="p-PATIENT-DEMOGRAPHICS-ERRORS">
+        
+        Element ruleAddress = doc.createElementNS("http://www.ascc.net/xml/schematron", "rule");
+        ruleAddress.setAttribute("context", "/cda:ClinicalDocument/cda:recordTarget/cda:patientRole");
+        patternErrors.appendChild(ruleAddress);
+            
+        
         /*
         
             <sch:pattern name="PATIENT-DEMOGRAPHICS" id="p-PATIENT-DEMOGRAPHICS-ERRORS">
@@ -153,7 +166,7 @@ public class SchematronGeneration {
         
     </sch:pattern>
          */
-        //System.out.println(XmlUtils.xmlToString(doc));
+        
         
         Address addr = new Address();
         addr.getStreetAddress().add("143 Taylor Street");
@@ -163,9 +176,11 @@ public class SchematronGeneration {
         addr.setPostalCode("21401");
         addr.setCountry("US");
         Element assertAddr = createAddress(doc, addr);
-        System.out.println("Schematron = " + XmlUtils.xmlToString(assertAddr));
+//        System.out.println("Schematron = " + XmlUtils.xmlToString(assertAddr));
         
-        
+ruleAddress.appendChild(assertAddr);
+
+  System.out.println(XmlUtils.xmlToString(doc));      
 
     }
 
