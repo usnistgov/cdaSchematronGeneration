@@ -5,6 +5,7 @@
  */
 package gov.nist.healthcare.cda.schematron;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import org.w3c.dom.Document;
@@ -54,6 +55,8 @@ public class Pattern {
      * @return the rules
      */
     public Collection<Rule> getRules() {
+        if(rules == null)
+            rules = new ArrayList<>();
         return rules;
     }
 

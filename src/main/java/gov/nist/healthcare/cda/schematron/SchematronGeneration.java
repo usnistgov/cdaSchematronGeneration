@@ -7,6 +7,7 @@ package gov.nist.healthcare.cda.schematron;
 
 import gov.nist.healthcare.cda.model.Address;
 import gov.nist.healthcare.cda.model.Name;
+import gov.nist.healthcare.cda.model.PatientDemographics;
 import hl7OrgV3.AD;
 import hl7OrgV3.AdxpStreetAddressLine;
 import java.util.ArrayList;
@@ -216,7 +217,7 @@ public class SchematronGeneration {
     }
 
     public static void main(String[] args) throws ParserConfigurationException {
-
+/*
         Document doc = XmlUtils.createDocument();
 
         Element schema = createSchema(doc);
@@ -248,7 +249,42 @@ public class SchematronGeneration {
         ruleAddress.appendChild(assertAddr);
 
         System.out.println(XmlUtils.xmlToString(doc));
+*/
 
+    
+
+    
+    
+    PatientDemographics demo = new PatientDemographics();
+    demo.setSex("F");
+    
+    Assert patientDemoSexAssert = new Assert();
+    
+    Schema schema = new Schema();
+    
+    
+    patientDemoSexAssert.setMessage("Patient Sex Must be " + demo.getSex());    
+    patientDemoSexAssert.setTest("cda:patient/cda:administrativeGender[@code='" + demo.getSex() + "']");
+
+    Rule patientDemoRule = new Rule();
+    
+    patientDemoRule.setContext("/cda:ClinicalDocument/cda:recordTarget/cda:patientRole");
+    patientDemoRule.getAsserts().add(patientDemoSexAssert);
+    
+    Pattern patientDemoPattern = new Pattern();
+    patientDemoPattern.setPatternId("PATIENT-DEMOGRAPHICS");
+    patientDemoPattern.getRules().add(patientDemoRule);
+    
+    Phase errorsPhase = new Phase();
+    errorsPhase.setId("errors");
+    errorsPhase.getPattern().add("PATIENT-DEMOGRAPHICS");
+    
+    schema.getPatterns().add(patientDemoPattern);
+    schema.getPhases().add(errorsPhase);
+    
+    Document doc = XmlUtils.createDocument();
+    System.out.println(XmlUtils.xmlToString(schema.toElement(doc)));
+    
     }
 
 }

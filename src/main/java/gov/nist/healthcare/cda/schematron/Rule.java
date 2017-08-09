@@ -5,6 +5,7 @@
  */
 package gov.nist.healthcare.cda.schematron;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import org.w3c.dom.Document;
@@ -53,6 +54,8 @@ public class Rule {
      * @return the asserts
      */
     public Collection<Assert> getAsserts() {
+        if(asserts == null)
+            asserts = new ArrayList<>();
         return asserts;
     }
 

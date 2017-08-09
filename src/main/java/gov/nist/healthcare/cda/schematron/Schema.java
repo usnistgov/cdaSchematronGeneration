@@ -5,6 +5,7 @@
  */
 package gov.nist.healthcare.cda.schematron;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import org.w3c.dom.Document;
@@ -28,7 +29,7 @@ public class Schema {
             while(it.hasNext()) {
                 schema.appendChild(it.next().toElement(doc));
             }
-        }
+        }        
         if(patterns != null) {
             Iterator<Pattern> it = this.getPatterns().iterator();
             while(it.hasNext()) {
@@ -44,6 +45,8 @@ public class Schema {
      * @return the phases
      */
     public Collection<Phase> getPhases() {
+        if (phases == null)
+            phases = new ArrayList<>();
         return phases;
     }
 
@@ -58,6 +61,8 @@ public class Schema {
      * @return the patterns
      */
     public Collection<Pattern> getPatterns() {
+        if (patterns == null)
+            patterns = new ArrayList<>();
         return patterns;
     }
 
