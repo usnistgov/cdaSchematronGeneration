@@ -17,19 +17,26 @@ import org.w3c.dom.Element;
  */
 public class Schema {
     
-    private Collection<Phase> phases = null;
+    private Phase errorPhases = null;
+    private Phase warningPhases = null;    
     private Collection<Pattern> patterns = null;
 
     public Element toElement(Document doc) {
         
         Element schema = SchematronGeneration.createSchema(doc);
         
-        if(phases != null) {            
-            Iterator<Phase> it = this.getPhases().iterator();
-            while(it.hasNext()) {
-                schema.appendChild(it.next().toElement(doc));
-            }
+        if(getErrorPhases() != null && getErrorPhases().getPattern() != null && !getErrorPhases().getPattern().isEmpty()) {            
+
+                schema.appendChild(getErrorPhases().toElement(doc));
+
         }        
+        
+        if(getWarningPhases() != null && getWarningPhases().getPattern() != null && !getWarningPhases().getPattern().isEmpty()) {            
+                schema.appendChild(getWarningPhases().toElement(doc));
+        }        
+
+        
+        
         if(patterns != null) {
             Iterator<Pattern> it = this.getPatterns().iterator();
             while(it.hasNext()) {
@@ -41,22 +48,6 @@ public class Schema {
         
     }
     
-    /**
-     * @return the phases
-     */
-    public Collection<Phase> getPhases() {
-        if (phases == null)
-            phases = new ArrayList<>();
-        return phases;
-    }
-
-    /**
-     * @param phases the phases to set
-     */
-    public void setPhases(Collection<Phase> phases) {
-        this.phases = phases;
-    }
-
     /**
      * @return the patterns
      */
@@ -72,6 +63,44 @@ public class Schema {
     public void setPatterns(Collection<Pattern> patterns) {
         this.patterns = patterns;
     }
+
+    /**
+     * @return the errorPhases
+     */
+    public Phase getErrorPhases() {
+        if(errorPhases == null) {
+            errorPhases =  new Phase();
+            errorPhases.setId("error");
+        }
+        return errorPhases;
+    }
+
+    /**
+     * @param errorPhases the errorPhases to set
+     */
+    public void setErrorPhases(Phase errorPhases) {
+        this.errorPhases = errorPhases;
+    }
+
+    /**
+     * @return the warningPhases
+     */
+    public Phase getWarningPhases() {
+        if(warningPhases == null) {
+            warningPhases =  new Phase();
+            warningPhases.setId("warning");
+        }
+        return warningPhases;
+    }
+
+    /**
+     * @param warningPhases the warningPhases to set
+     */
+    public void setWarningPhases(Phase warningPhases) {
+        this.warningPhases = warningPhases;
+    }
+
+
     
     
     
