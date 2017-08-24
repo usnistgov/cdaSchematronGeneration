@@ -400,6 +400,21 @@ public class SchematronGeneration {
         patientDemoDeathTimeAssert.setTest("cda:patient/sdtc:deceasedTime[@value='" + demo.getDeathTime() + "']");
         asserts.add(patientDemoDeathTimeAssert);
 
+        Assert patientRaceCode1Assert = new Assert();
+        patientRaceCode1Assert.setMessage("Patient Race Code (1) Must be " + demo.getRaceCode1());
+        patientRaceCode1Assert.setTest("cda:patient/cda:raceCode[@code='" + demo.getRaceCode1() + "']");
+        asserts.add(patientRaceCode1Assert);
+
+        Assert patientRaceCode2Assert = new Assert();
+        patientRaceCode2Assert.setMessage("Patient Race Code (2) Must be " + demo.getRaceCode2());
+        patientRaceCode2Assert.setTest("cda:patient/sdtc:raceCode[@code='" + demo.getRaceCode2() + "']");
+        asserts.add(patientRaceCode2Assert);
+        
+        Assert patientEthnicCodeAssert = new Assert();
+        patientEthnicCodeAssert.setMessage("Patient Ethnic Group Code Must be " + demo.getEthnicGroup());
+        patientEthnicCodeAssert.setTest("cda:patient/cda:ethnicGroupCode[@code='" + demo.getEthnicGroup() + "']");
+        asserts.add(patientEthnicCodeAssert);
+  
         Assert patientDemoSsnAssert = new Assert();
         patientDemoSsnAssert.setMessage("Patient SSN Must be " + demo.getSocialSecurityNumber());
         patientDemoSsnAssert.setTest("cda:id[@codeSystem = '2.16.840.1.113883.4.1' and @extension='" + demo.getSocialSecurityNumber() + "']");
