@@ -417,7 +417,7 @@ public class SchematronGeneration {
   
         Assert patientDemoSsnAssert = new Assert();
         patientDemoSsnAssert.setMessage("Patient SSN Must be " + demo.getSocialSecurityNumber());
-        patientDemoSsnAssert.setTest("cda:id[@codeSystem = '2.16.840.1.113883.4.1' and @extension='" + demo.getSocialSecurityNumber() + "']");
+        patientDemoSsnAssert.setTest("cda:id[@root = '2.16.840.1.113883.4.1' and @extension='" + demo.getSocialSecurityNumber() + "']");
         asserts.add(patientDemoSsnAssert);
 
         Rule patientDemoRule = new Rule();

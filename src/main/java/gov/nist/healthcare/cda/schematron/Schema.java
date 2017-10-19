@@ -70,7 +70,7 @@ public class Schema {
     public Phase getErrorPhases() {
         if(errorPhases == null) {
             errorPhases =  new Phase();
-            errorPhases.setId("error");
+            errorPhases.setId("errors");
         }
         return errorPhases;
     }
@@ -88,7 +88,7 @@ public class Schema {
     public Phase getWarningPhases() {
         if(warningPhases == null) {
             warningPhases =  new Phase();
-            warningPhases.setId("warning");
+            warningPhases.setId("warnings");
         }
         return warningPhases;
     }
