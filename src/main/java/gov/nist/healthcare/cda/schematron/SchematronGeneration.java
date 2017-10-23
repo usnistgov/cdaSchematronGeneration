@@ -263,7 +263,10 @@ public class SchematronGeneration {
         addPatientDemographicsRules(schema, vrdr);
         addCauseOfDeathRules(schema, vrdr);
         addDeathAdministrationsRules(schema, vrdr);
-        addDeathEventRules(schema,vrdr);
+        addDeathEventRules(schema, vrdr);
+        Collection<ExistenceCheck> existenceChecks = ExistenceCheck.getAllExistenceChecks();
+
+        addExistenceChecks(schema, existenceChecks);
 
         Document doc = XmlUtils.createDocument();
         System.out.println(XmlUtils.xmlToString(schema.toElement(doc)));
@@ -315,7 +318,7 @@ public class SchematronGeneration {
         mannerAssert.setTest("cda:entry/cda:observation[cda:templateId[@root='2.16.840.1.113883.10.20.26.1.11']]/cda:value[@code = '" + de.getMannerOfDeath() + "']");
         mannerAssert.setMessage("Manner of death must be " + de.getMannerOfDeath());
         asserts.add(mannerAssert);
-                        
+
         Rule deathEventRule = new Rule();
 
         deathEventRule.setContext("//cda:section[cda:templateId[@root='2.16.840.1.113883.10.20.26.1.2.6' and @extension='2016-12-01']]");
@@ -330,11 +333,7 @@ public class SchematronGeneration {
         //errorsPhase.getPattern().add("CAUSE-OF-DEATH");
         schema.getPatterns().add(deathEventPattern);
         schema.getErrorPhases().getPattern().add("DEATH-EVENT");
-        
-        
-        
-        
-        
+
     }
 
     public static void addCauseOfDeathRules(Schema schema, VitalRecordsDeathReport vrdr) throws SQLException {
@@ -409,12 +408,12 @@ public class SchematronGeneration {
         patientRaceCode2Assert.setMessage("Patient Race Code (2) Must be " + demo.getRaceCode2());
         patientRaceCode2Assert.setTest("cda:patient/sdtc:raceCode[@code='" + demo.getRaceCode2() + "']");
         asserts.add(patientRaceCode2Assert);
-        
+
         Assert patientEthnicCodeAssert = new Assert();
         patientEthnicCodeAssert.setMessage("Patient Ethnic Group Code Must be " + demo.getEthnicGroup());
         patientEthnicCodeAssert.setTest("cda:patient/cda:ethnicGroupCode[@code='" + demo.getEthnicGroup() + "']");
         asserts.add(patientEthnicCodeAssert);
-  
+
         Assert patientDemoSsnAssert = new Assert();
         patientDemoSsnAssert.setMessage("Patient SSN Must be " + demo.getSocialSecurityNumber());
         patientDemoSsnAssert.setTest("cda:id[@root = '2.16.840.1.113883.4.1' and @extension='" + demo.getSocialSecurityNumber() + "']");
@@ -434,6 +433,33 @@ public class SchematronGeneration {
         //errorsPhase.getPattern().add("PATIENT-DEMOGRAPHICS");
         schema.getPatterns().add(patientDemoPattern);
         schema.getErrorPhases().getPattern().add("PATIENT-DEMOGRAPHICS");
+    }
+
+    private static void addExistenceChecks(Schema schema, Collection<ExistenceCheck> existenceChecks) {
+
+        if (existenceChecks == null || existenceChecks.isEmpty()) {
+            return;
+        }
+
+        Collection<Assert> asserts = new ArrayList<>();
+        Iterator<ExistenceCheck> it = existenceChecks.iterator();
+        while (it.hasNext()) {
+            ExistenceCheck check = it.next();
+            Assert ass = new Assert();
+            ass.setTest(check.getXpath());
+            ass.setMessage(check.getMessage());
+            asserts.add(ass);
+        }
+        
+        Rule rule = new Rule();
+        rule.setContext(".");
+        rule.setAsserts(asserts);
+        Pattern pattern = new Pattern();
+        pattern.setPatternId("EXISTENCE-CHECKS");
+        pattern.getRules().add(rule);
+        schema.getPatterns().add(pattern);
+        schema.getErrorPhases().getPattern().add("EXISTENCE-CHECKS");
+
     }
 
 }
