@@ -259,7 +259,8 @@ public class SchematronGeneration {
         System.out.println(XmlUtils.xmlToString(doc));
          */
         Schema schema = new Schema();
-        VitalRecordsDeathReport vrdr = VitalRecordsDeathReport.getVRDRById("VRDR1");
+        //VitalRecordsDeathReport vrdr = VitalRecordsDeathReport.getVRDRById("VRDR3");
+        VitalRecordsDeathReport vrdr = VitalRecordsDeathReport.getVRDRById("TD2");
         addPatientDemographicsRules(schema, vrdr);
         addCauseOfDeathRules(schema, vrdr);
         addDeathAdministrationsRules(schema, vrdr);
@@ -279,21 +280,25 @@ public class SchematronGeneration {
         CoronerReferral cr = vrdr.getCoronerReferral();
         Collection<Assert> asserts = new ArrayList<>();
 
-        Assert timePronouncedDead = new Assert();
-        timePronouncedDead.setTest("cda:entry/cda:act[cda:templateId[@root='2.16.840.1.113883.10.20.26.1.15' and @extension='2016-12-01']]/cda:effectiveTime[@value = '" + da.getDateTimePronouncedDead() + "']");
-        timePronouncedDead.setMessage("Time pronounced dead must be " + da.getDateTimePronouncedDead());
-        asserts.add(timePronouncedDead);
+        if (da != null && da.getDateTimePronouncedDead() != null) {
+            Assert timePronouncedDead = new Assert();
+            timePronouncedDead.setTest("cda:entry/cda:act[cda:templateId[@root='2.16.840.1.113883.10.20.26.1.15' and @extension='2016-12-01']]/cda:effectiveTime[@value = '" + da.getDateTimePronouncedDead() + "']");
+            timePronouncedDead.setMessage("Time pronounced dead must be " + da.getDateTimePronouncedDead());
+            asserts.add(timePronouncedDead);
+        }
 
-        Assert resultsAvailable = new Assert();
-        resultsAvailable.setTest("cda:entry/cda:procedure[cda:templateId[@root='2.16.840.1.113883.10.20.26.1.2' and @extension='2016-12-01']]/cda:entryRelationship/cda:observation[cda:templateId[@root='2.16.840.1.113883.10.20.26.1.3' and @extension='2016-12-01']]/cda:value[@value = '" + ad.getResultsAvailable() + "']");
-        resultsAvailable.setMessage("Results available must be " + ad.getResultsAvailable());
-        asserts.add(resultsAvailable);
-
-        Assert coronerRefNote = new Assert();
-        coronerRefNote.setTest("cda:entry/cda:act[cda:templateId[@root='2.16.840.1.113883.10.20.26.1.4' and @extension='2016-12-01']]/cda:entryRelationship/cda:observation[cda:templateId[@root='2.16.840.1.113883.10.20.26.1.5']]/cda:value = '" + cr.getCoronerReferralNote() + "'");
-        coronerRefNote.setMessage("Coroner Referral Note must be " + cr.getCoronerReferralNote());
-        asserts.add(coronerRefNote);
-
+        if (ad != null && ad.getResultsAvailable() != null) {
+            Assert resultsAvailable = new Assert();
+            resultsAvailable.setTest("cda:entry/cda:procedure[cda:templateId[@root='2.16.840.1.113883.10.20.26.1.2' and @extension='2016-12-01']]/cda:entryRelationship/cda:observation[cda:templateId[@root='2.16.840.1.113883.10.20.26.1.3' and @extension='2016-12-01']]/cda:value[@value = '" + ad.getResultsAvailable() + "']");
+            resultsAvailable.setMessage("Results available must be " + ad.getResultsAvailable());
+            asserts.add(resultsAvailable);
+        }
+        if (cr != null && cr.getCoronerReferralNote() != null) {
+            Assert coronerRefNote = new Assert();
+            coronerRefNote.setTest("cda:entry/cda:act[cda:templateId[@root='2.16.840.1.113883.10.20.26.1.4' and @extension='2016-12-01']]/cda:entryRelationship/cda:observation[cda:templateId[@root='2.16.840.1.113883.10.20.26.1.5']]/cda:value = '" + cr.getCoronerReferralNote() + "'");
+            coronerRefNote.setMessage("Coroner Referral Note must be " + cr.getCoronerReferralNote());
+            asserts.add(coronerRefNote);
+        }
         Rule deathAdminRule = new Rule();
 
         deathAdminRule.setContext("//cda:section[cda:templateId[@root='2.16.840.1.113883.10.20.26.1.2.3' and @extension='2016-12-01']]");
@@ -312,59 +317,55 @@ public class SchematronGeneration {
 
     public static void addDeathEventRules(Schema schema, VitalRecordsDeathReport vrdr) throws SQLException {
         DeathEvent de = vrdr.getDeathEvent();
-
         Collection<Assert> asserts = new ArrayList<>();
-        Assert mannerAssert = new Assert();
-        mannerAssert.setTest("cda:entry/cda:observation[cda:templateId[@root='2.16.840.1.113883.10.20.26.1.11']]/cda:value[@code = '" + de.getMannerOfDeath() + "']");
-        mannerAssert.setMessage("Manner of death must be " + de.getMannerOfDeath());
-        asserts.add(mannerAssert);
 
-        Rule deathEventRule = new Rule();
+        if (de != null && de.getMannerOfDeath() != null) {
+            Assert mannerAssert = new Assert();
+            mannerAssert.setTest("cda:entry/cda:observation[cda:templateId[@root='2.16.840.1.113883.10.20.26.1.11']]/cda:value[@code = '" + de.getMannerOfDeath() + "']");
+            mannerAssert.setMessage("Manner of death must be " + de.getMannerOfDeath());
+            asserts.add(mannerAssert);
+        }
+        if (!asserts.isEmpty()) {
 
-        deathEventRule.setContext("//cda:section[cda:templateId[@root='2.16.840.1.113883.10.20.26.1.2.6' and @extension='2016-12-01']]");
-        deathEventRule.setAsserts(asserts);
+            Rule deathEventRule = new Rule();
 
-        Pattern deathEventPattern = new Pattern();
-        deathEventPattern.setPatternId("DEATH-EVENT");
-        deathEventPattern.getRules().add(deathEventRule);
+            deathEventRule.setContext("//cda:section[cda:templateId[@root='2.16.840.1.113883.10.20.26.1.2.6' and @extension='2016-12-01']]");
+            deathEventRule.setAsserts(asserts);
 
-        //Phase errorsPhase = new Phase();
-        //errorsPhase.setId("errors");
-        //errorsPhase.getPattern().add("CAUSE-OF-DEATH");
-        schema.getPatterns().add(deathEventPattern);
-        schema.getErrorPhases().getPattern().add("DEATH-EVENT");
+            Pattern deathEventPattern = new Pattern();
+            deathEventPattern.setPatternId("DEATH-EVENT");
+            deathEventPattern.getRules().add(deathEventRule);
 
+            //Phase errorsPhase = new Phase();
+            //errorsPhase.setId("errors");
+            //errorsPhase.getPattern().add("CAUSE-OF-DEATH");
+            schema.getPatterns().add(deathEventPattern);
+            schema.getErrorPhases().getPattern().add("DEATH-EVENT");
+        }
     }
 
     public static void addCauseOfDeathRules(Schema schema, VitalRecordsDeathReport vrdr) throws SQLException {
 
         CauseOfDeath cod = vrdr.getCauseOfDeath();
-
         Collection<Assert> asserts = new ArrayList<>();
-        Assert injuryAssert = new Assert();
-        injuryAssert.setTest("cda:entry/cda:organizer[cda:templateId[@root='2.16.840.1.113883.10.20.26.1.9' and @extension='2016-12-01']]/cda:component/cda:observation[cda:templateId[@root='2.16.840.1.113883.10.20.26.1.3.40' and @extension='2016-12-01']]/cda:value[@code = '" + cod.getInjuryInvolvedInDeath() + "']");
-        injuryAssert.setMessage("Injury involved must be " + cod.getInjuryInvolvedInDeath());
 
-        /*
-        <rule context="//cda:section[cda:templateId[@root='2.16.840.1.113883.10.20.26.1.2.5' and @extension='2016-12-01']]">
-            
+        if (cod.getInjuryInvolvedInDeath() != null) {
+            Assert injuryAssert = new Assert();
+            injuryAssert.setTest("cda:entry/cda:organizer[cda:templateId[@root='2.16.840.1.113883.10.20.26.1.9' and @extension='2016-12-01']]/cda:component/cda:observation[cda:templateId[@root='2.16.840.1.113883.10.20.26.1.3.40' and @extension='2016-12-01']]/cda:value[@code = '" + cod.getInjuryInvolvedInDeath() + "']");
+            injuryAssert.setMessage("Injury involved must be " + cod.getInjuryInvolvedInDeath());
+            asserts.add(injuryAssert);
+        }
 
-            <assert test="cda:entry/cda:organizer[cda:templateId[@root='2.16.840.1.113883.10.20.26.1.9' and @extension='2016-12-01']]/cda:component/cda:observation[cda:templateId[@root='2.16.840.1.113883.10.20.26.1.3.40' and @extension='2016-12-01']]/cda:value[@code = 'dope']">            
-            Must be nope!!!    
-            </assert>
-        </rule>
-         */
-        Assert tobaccoAssert = new Assert();
-        tobaccoAssert.setTest("cda:entry/cda:observation[cda:templateId[@root='2.16.840.1.113883.10.20.26.1.14' and @extension='2016-12-01']]/cda:value[@code = '" + cod.getTobaccoUse() + "']");
-        tobaccoAssert.setMessage("Tobacco Use must be " + cod.getTobaccoUse());
-
-//                    <assert test="cda:entry/cda:observation[cda:templateId[@root='2.16.840.1.113883.10.20.26.1.14' and @extension='2016-12-01']]/cda:value[@code = 'nope']">
-        asserts.add(injuryAssert);
-        asserts.add(tobaccoAssert);
+        if (cod.getTobaccoUse() != null) {
+            Assert tobaccoAssert = new Assert();
+            tobaccoAssert.setTest("cda:entry/cda:observation[cda:templateId[@root='2.16.840.1.113883.10.20.26.1.14' and @extension='2016-12-01']]/cda:value[@code = '" + cod.getTobaccoUse() + "']");
+            tobaccoAssert.setMessage("Tobacco Use must be " + cod.getTobaccoUse());
+            asserts.add(tobaccoAssert);
+        }
 
         Rule causeOfDeathRule = new Rule();
 
-        causeOfDeathRule.setContext("//cda:section[cda:templateId[@root='2.16.840.1.113883.10.20.26.1.2.5' and @extension='2016-12-01']]");
+        causeOfDeathRule.setContext("//cda:section[cda:templateId[@root='2.16.840.1.113883.10.20.26.1.2.4' and @extension='2016-12-01']]");
         causeOfDeathRule.setAsserts(asserts);
 
         Pattern causeOfDeathPattern = new Pattern();
@@ -382,43 +383,59 @@ public class SchematronGeneration {
     public static void addPatientDemographicsRules(Schema schema, VitalRecordsDeathReport vrdr) throws SQLException {
 
         PatientDemographics demo = vrdr.getPatientDemographics();
-
         Collection<Assert> asserts = new ArrayList<>();
-        Assert patientDemoSexAssert = new Assert();
-        patientDemoSexAssert.setMessage("Patient Sex Must be " + demo.getSex());
-        patientDemoSexAssert.setTest("cda:patient/cda:administrativeGenderCode[@code='" + demo.getSex() + "']");
-        asserts.add(patientDemoSexAssert);
 
-        Assert patientDemoBirthTimeAssert = new Assert();
-        patientDemoBirthTimeAssert.setMessage("Patient Birth Time Must be " + demo.getBirthTime());
-        patientDemoBirthTimeAssert.setTest("cda:patient/cda:birthTime[@value='" + demo.getBirthTime() + "']");
-        asserts.add(patientDemoBirthTimeAssert);
+        if (demo.getSex() != null && !demo.getSex().isEmpty()) {
+            Assert patientDemoSexAssert = new Assert();
+            patientDemoSexAssert.setMessage("Patient Sex Must be " + demo.getSex());
+            patientDemoSexAssert.setTest("cda:patient/cda:administrativeGenderCode[@code='" + demo.getSex() + "']");
+            asserts.add(patientDemoSexAssert);
+        }
 
-        Assert patientDemoDeathTimeAssert = new Assert();
-        patientDemoDeathTimeAssert.setMessage("Patient Death Time Must be " + demo.getDeathTime());
-        patientDemoDeathTimeAssert.setTest("cda:patient/sdtc:deceasedTime[@value='" + demo.getDeathTime() + "']");
-        asserts.add(patientDemoDeathTimeAssert);
+        if (demo.getBirthTime() != null && !demo.getBirthTime().isEmpty()) {
+            Assert patientDemoBirthTimeAssert = new Assert();
+            patientDemoBirthTimeAssert.setMessage("Patient Birth Time Must be " + demo.getBirthTime());
+            patientDemoBirthTimeAssert.setTest("cda:patient/cda:birthTime[@value='" + demo.getBirthTime() + "']");
+            asserts.add(patientDemoBirthTimeAssert);
+        }
 
-        Assert patientRaceCode1Assert = new Assert();
-        patientRaceCode1Assert.setMessage("Patient Race Code (1) Must be " + demo.getRaceCode1());
-        patientRaceCode1Assert.setTest("cda:patient/cda:raceCode[@code='" + demo.getRaceCode1() + "']");
-        asserts.add(patientRaceCode1Assert);
+        if (demo.getDeathTime() != null && !demo.getDeathTime().isEmpty()) {
+            Assert patientDemoDeathTimeAssert = new Assert();
+            patientDemoDeathTimeAssert.setMessage("Patient Death Time Must be " + demo.getDeathTime());
+            patientDemoDeathTimeAssert.setTest("cda:patient/sdtc:deceasedTime[@value='" + demo.getDeathTime() + "']");
+            asserts.add(patientDemoDeathTimeAssert);
+        }
 
-        Assert patientRaceCode2Assert = new Assert();
-        patientRaceCode2Assert.setMessage("Patient Race Code (2) Must be " + demo.getRaceCode2());
-        patientRaceCode2Assert.setTest("cda:patient/sdtc:raceCode[@code='" + demo.getRaceCode2() + "']");
-        asserts.add(patientRaceCode2Assert);
+        if (demo.getRaceCode1() != null && !demo.getRaceCode1().isEmpty()) {
+            Assert patientRaceCode1Assert = new Assert();
+            patientRaceCode1Assert.setMessage("Patient Race Code (1) Must be " + demo.getRaceCode1());
+            patientRaceCode1Assert.setTest("cda:patient/cda:raceCode[@code='" + demo.getRaceCode1() + "']");
+            asserts.add(patientRaceCode1Assert);
+        }
 
-        Assert patientEthnicCodeAssert = new Assert();
-        patientEthnicCodeAssert.setMessage("Patient Ethnic Group Code Must be " + demo.getEthnicGroup());
-        patientEthnicCodeAssert.setTest("cda:patient/cda:ethnicGroupCode[@code='" + demo.getEthnicGroup() + "']");
-        asserts.add(patientEthnicCodeAssert);
+        if (demo.getRaceCode2() != null && !demo.getRaceCode2().isEmpty()) {
+            Assert patientRaceCode2Assert = new Assert();
+            patientRaceCode2Assert.setMessage("Patient Race Code (2) Must be " + demo.getRaceCode2());
+            patientRaceCode2Assert.setTest("cda:patient/sdtc:raceCode[@code='" + demo.getRaceCode2() + "']");
+            asserts.add(patientRaceCode2Assert);
+        }
 
-        Assert patientDemoSsnAssert = new Assert();
-        patientDemoSsnAssert.setMessage("Patient SSN Must be " + demo.getSocialSecurityNumber());
-        patientDemoSsnAssert.setTest("cda:id[@root = '2.16.840.1.113883.4.1' and @extension='" + demo.getSocialSecurityNumber() + "']");
-        asserts.add(patientDemoSsnAssert);
+        if (demo.getEthnicGroup() != null && !demo.getEthnicGroup().isEmpty()) {
+            Assert patientEthnicCodeAssert = new Assert();
+            patientEthnicCodeAssert.setMessage("Patient Ethnic Group Code Must be " + demo.getEthnicGroup());
+            patientEthnicCodeAssert.setTest("cda:patient/cda:ethnicGroupCode[@code='" + demo.getEthnicGroup() + "']");
+            asserts.add(patientEthnicCodeAssert);
+        }
 
+        if (demo.getSocialSecurityNumber() != null && !demo.getSocialSecurityNumber().isEmpty()) {
+            Assert patientDemoSsnAssert = new Assert();
+            patientDemoSsnAssert.setMessage("Patient SSN Must be " + demo.getSocialSecurityNumber());
+            patientDemoSsnAssert.setTest("cda:id[@root = '2.16.840.1.113883.4.1' and @extension='" + demo.getSocialSecurityNumber() + "']");
+            asserts.add(patientDemoSsnAssert);
+        }
+
+        
+        
         Rule patientDemoRule = new Rule();
 
         patientDemoRule.setContext("/cda:ClinicalDocument/cda:recordTarget/cda:patientRole");
@@ -450,9 +467,9 @@ public class SchematronGeneration {
             ass.setMessage(check.getMessage());
             asserts.add(ass);
         }
-        
+
         Rule rule = new Rule();
-        rule.setContext(".");
+        rule.setContext("/cda:ClinicalDocument");
         rule.setAsserts(asserts);
         Pattern pattern = new Pattern();
         pattern.setPatternId("EXISTENCE-CHECKS");
